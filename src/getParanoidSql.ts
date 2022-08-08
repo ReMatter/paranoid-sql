@@ -3,18 +3,30 @@ import { forEach } from 'traverse';
 
 let parser: Parser;
 
-const buildParanoidCondition = (tableAlias: string) => ({
-  type: 'binary_expr',
-  operator: 'IS',
-  left: {
-    type: 'column_ref',
-    table: tableAlias,
-    column: 'deletedAt',
-  },
-  right: { type: 'null', value: null },
-});
+const buildParanoidConditions = (tableAliases: string[]) =>
+  tableAliases
+    .map((tableAlias) => ({
+      type: 'binary_expr',
+      operator: 'IS',
+      left: {
+        type: 'column_ref',
+        table: tableAlias,
+        column: 'deletedAt',
+      },
+      right: { type: 'null', value: null },
+    }))
+    .reduce(
+      (left, right) =>
+        ({
+          type: 'binary_expr',
+          operator: 'AND',
+          left,
+          right,
+        } as any),
+    );
 
-const getTableAlias = ({ table, as }: { table: string; as?: string }) => as ?? table;
+const getTableAliases = (descriptors: { table: string; as?: string }[]) =>
+  descriptors.map(({ table, as }) => as ?? table);
 
 export const getParanoidSql = (sql: string): string => {
   if (!parser) {
@@ -23,32 +35,32 @@ export const getParanoidSql = (sql: string): string => {
   const ast = parser.parse(sql);
   forEach(ast, function (n) {
     if (n.type === 'select') {
-      const tableAlias = getTableAlias(n.from[0]);
-      const paranoidCondition = buildParanoidCondition(tableAlias);
+      const tableAliases = getTableAliases(n.from);
+      const paranoidConditions = buildParanoidConditions(tableAliases);
       if (n.where) {
         n.where = {
           type: 'binary_expr',
           operator: 'AND',
           left: n.where,
-          right: paranoidCondition,
+          right: paranoidConditions,
         };
       } else {
-        n.where = paranoidCondition;
+        n.where = paranoidConditions;
       }
       if (Array.isArray(n.columns)) {
         n.columns.forEach(({ expr }: { expr: any }) => {
           if (expr.type === 'select') {
-            const tableAlias = getTableAlias(expr.from[0]);
-            const paranoidCondition = buildParanoidCondition(tableAlias);
+            const tableAliases = getTableAliases(expr.from);
+            const paranoidConditions = buildParanoidConditions(tableAliases);
             if (expr.where) {
               expr.where = {
                 type: 'binary_expr',
                 operator: 'AND',
                 left: expr.where,
-                right: paranoidCondition,
+                right: paranoidConditions,
               };
             } else {
-              expr.where = paranoidCondition;
+              expr.where = paranoidConditions;
             }
           }
         });

@@ -33,3 +33,10 @@ test('query with subquery', () => {
     'SELECT "t".*, (SELECT "name" FROM "u" WHERE "u"."id" = "t"."id" AND "u"."deletedAt" IS NULL) FROM "t" WHERE "t"."deletedAt" IS NULL',
   );
 });
+
+test('query with join', () => {
+  strictEqual(
+    getParanoidSql('SELECT t.id, u.name FROM t INNER JOIN u ON t.id = u.tid'),
+    'SELECT "t"."id", "u"."name" FROM "t" INNER JOIN "u" ON "t"."id" = "u"."tid" WHERE "t"."deletedAt" IS NULL AND "u"."deletedAt" IS NULL',
+  );
+});
