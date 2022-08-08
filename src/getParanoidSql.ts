@@ -35,8 +35,26 @@ export const getParanoidSql = (sql: string): string => {
       } else {
         n.where = paranoidCondition;
       }
-      // n.columns?.forEach()
+      if (Array.isArray(n.columns)) {
+        n.columns.forEach(({ expr }: { expr: any }) => {
+          if (expr.type === 'select') {
+            const tableAlias = getTableAlias(expr.from[0]);
+            const paranoidCondition = buildParanoidCondition(tableAlias);
+            if (expr.where) {
+              expr.where = {
+                type: 'binary_expr',
+                operator: 'AND',
+                left: expr.where,
+                right: paranoidCondition,
+              };
+            } else {
+              expr.where = paranoidCondition;
+            }
+          }
+        });
+      }
     }
+    // console.log(n);
     this.update('');
   });
 
