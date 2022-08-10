@@ -28,18 +28,26 @@ const getTableAliases = (from: From[]) => from.map(({ table, as }) => as ?? tabl
 
 const updateAST = (ast: AST) => {
   if (ast?.type === 'select') {
-    const tableAliases = getTableAliases(ast.from as From[]);
-    const paranoidConditions = buildParanoidConditions(tableAliases);
-    if (ast.where) {
-      ast.where = {
-        type: 'binary_expr',
-        operator: 'AND',
-        left: ast.where,
-        right: paranoidConditions,
-      };
+    if (Array.isArray(ast.with)) {
+      ast.with.forEach(({ stmt }) => {
+        const ast: AST = stmt.ast;
+        updateAST(ast);
+      });
     } else {
-      ast.where = paranoidConditions;
+      const tableAliases = getTableAliases(ast.from as From[]);
+      const paranoidConditions = buildParanoidConditions(tableAliases);
+      if (ast.where) {
+        ast.where = {
+          type: 'binary_expr',
+          operator: 'AND',
+          left: ast.where,
+          right: paranoidConditions,
+        };
+      } else {
+        ast.where = paranoidConditions;
+      }
     }
+
     if (Array.isArray(ast.columns)) {
       ast.columns.forEach(({ expr }) => {
         const ast: AST = expr.ast;
