@@ -34,6 +34,13 @@ test('query with subquery', () => {
   );
 });
 
+test('query with subquery inside function', () => {
+  strictEqual(
+    getParanoidSql('SELECT t.*, COALESCE((SELECT AVG(age) FROM u WHERE u.id = t.id), 0) FROM t'),
+    'SELECT `t`.*, COALESCE((SELECT AVG(`age`) FROM `u` WHERE `u`.`id` = `t`.`id` AND `u`.`deletedAt` IS NULL), 0) FROM `t` WHERE `t`.`deletedAt` IS NULL',
+  );
+});
+
 test('query with join', () => {
   strictEqual(
     getParanoidSql('SELECT t.id, u.name FROM t INNER JOIN u ON t.id = u.tid'),

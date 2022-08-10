@@ -52,6 +52,9 @@ const updateAST = (ast: AST) => {
       ast.columns.forEach(({ expr }) => {
         const ast: AST = expr.ast;
         updateAST(ast);
+        if (expr.type === 'function') {
+          expr.args.value.forEach(({ ast }: { ast: AST }) => updateAST(ast));
+        }
       });
     }
   }
