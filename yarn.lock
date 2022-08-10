@@ -24,19 +24,6 @@
     minimatch "^3.1.2"
     strip-json-comments "^3.1.1"
 
-"@florajs/errors@^3.0.0":
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/@florajs/errors/-/errors-3.0.0.tgz#d46088635afb18628ef59217a73b93184fda9c16"
-  integrity sha512-ODScaODSQ0TkMZ5gUut/E9+ZkwMNs5ZDSgTf98MWw1iMmPe8rQ+Q6VqWi7Jd0ZXJniwOh9TgWgzV4Co3z/0N4A==
-
-"@florajs/sql-parser@^2.0.0":
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/@florajs/sql-parser/-/sql-parser-2.0.0.tgz#4eb6d93d5d0b7a81d3e1023e110c4287dc8defa1"
-  integrity sha512-+2pNP0AGoMv5tIEREt+p+phqXYRglyK2nf6oImculSJ/K3gbe4OX9UtJ4aFBWfIV6XOL8sfiUYZS2vsx16Zu+Q==
-  dependencies:
-    "@florajs/errors" "^3.0.0"
-    has "^1.0.3"
-
 "@humanwhocodes/config-array@^0.10.4":
   version "0.10.4"
   resolved "https://registry.yarnpkg.com/@humanwhocodes/config-array/-/config-array-0.10.4.tgz#01e7366e57d2ad104feea63e72248f22015c520c"
@@ -281,6 +268,11 @@ balanced-match@^1.0.0:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/balanced-match/-/balanced-match-1.0.2.tgz#e83e3a7e3f300b34cb9d87f615fa0cbf357690ee"
   integrity sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==
+
+big-integer@^1.6.48:
+  version "1.6.51"
+  resolved "https://registry.yarnpkg.com/big-integer/-/big-integer-1.6.51.tgz#0df92a5d9880560d3ff2d5fd20245c889d130686"
+  integrity sha512-GPEid2Y9QU1Exl1rpO9B2IPJGHPSupF5GnVIP0blYvNOMer2bTvSWs1jGOUg04hTmu67nmLsQ9TBo1puaotBHg==
 
 brace-expansion@^1.1.7:
   version "1.1.11"
@@ -1031,6 +1023,13 @@ natural-compare@^1.4.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/natural-compare/-/natural-compare-1.4.0.tgz#4abebfeed7541f2c27acfb29bdbbd15c8d5ba4f7"
   integrity sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw==
+
+node-sql-parser@^4.4.0:
+  version "4.4.0"
+  resolved "https://registry.yarnpkg.com/node-sql-parser/-/node-sql-parser-4.4.0.tgz#80aadf88e1c30a2e6826bc3121036a29f16f65b1"
+  integrity sha512-c5J7oxQk4XWnNWPaGZ4CS0HFSDJex/QjoCNUuUJ84PX0ehAHFfPPkpjChQ3uySmHKHiwiVKMDFmPsFlq1gSXFQ==
+  dependencies:
+    big-integer "^1.6.48"
 
 object-inspect@^1.12.0, object-inspect@^1.9.0:
   version "1.12.2"

@@ -3,9 +3,9 @@
   "compilerOptions": {
     "composite": true
   },
-  "include": ["./", "../types/index.d.ts"],
+  "include": ["./"],
   "references": [{ "path": "../src" }],
-  // needed so ts-node can pick up the custom typing file
+  // needed so ts-node can pick up the custom typing files
   // see https://github.com/TypeStrong/ts-node/issues/897#issuecomment-1207542526
   "ts-node": {
     "files": true,

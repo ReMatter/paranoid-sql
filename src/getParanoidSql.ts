@@ -1,4 +1,4 @@
-import { Parser, util } from '@florajs/sql-parser';
+import { Parser } from 'node-sql-parser';
 import { forEach } from 'traverse';
 
 let parser: Parser;
@@ -32,7 +32,7 @@ export const getParanoidSql = (sql: string): string => {
   if (!parser) {
     parser = new Parser();
   }
-  const ast = parser.parse(sql);
+  const ast = parser.astify(sql);
   forEach(ast, function (n) {
     if (n.type === 'select') {
       const tableAliases = getTableAliases(n.from);
@@ -49,18 +49,19 @@ export const getParanoidSql = (sql: string): string => {
       }
       if (Array.isArray(n.columns)) {
         n.columns.forEach(({ expr }: { expr: any }) => {
-          if (expr.type === 'select') {
-            const tableAliases = getTableAliases(expr.from);
+          const ast = expr.ast;
+          if (ast?.type === 'select') {
+            const tableAliases = getTableAliases(ast.from);
             const paranoidConditions = buildParanoidConditions(tableAliases);
-            if (expr.where) {
-              expr.where = {
+            if (ast.where) {
+              ast.where = {
                 type: 'binary_expr',
                 operator: 'AND',
-                left: expr.where,
+                left: ast.where,
                 right: paranoidConditions,
               };
             } else {
-              expr.where = paranoidConditions;
+              ast.where = paranoidConditions;
             }
           }
         });
@@ -70,5 +71,5 @@ export const getParanoidSql = (sql: string): string => {
     this.update('');
   });
 
-  return util.astToSQL(ast);
+  return parser.sqlify(ast);
 };
