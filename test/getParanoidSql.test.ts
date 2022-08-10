@@ -41,6 +41,8 @@ test('query with join', () => {
   );
 });
 
+// node-sql-parser does not support CTE yet
+// https://github.com/taozhi8833998/node-sql-parser/issues/1090
 test('query with cte', { skip: true }, () => {
   strictEqual(
     getParanoidSql(
