@@ -27,7 +27,7 @@ const buildParanoidConditions = (tableAliases: string[]) =>
 const getTableAliases = (from: From[]) => from.map(({ table, as }) => as ?? table);
 
 const updateAST = (ast: AST) => {
-  if (ast.type === 'select') {
+  if (ast?.type === 'select') {
     const tableAliases = getTableAliases(ast.from as From[]);
     const paranoidConditions = buildParanoidConditions(tableAliases);
     if (ast.where) {
@@ -43,27 +43,14 @@ const updateAST = (ast: AST) => {
     if (Array.isArray(ast.columns)) {
       ast.columns.forEach(({ expr }) => {
         const ast: AST = expr.ast;
-        if (ast?.type === 'select') {
-          const tableAliases = getTableAliases(ast.from as From[]);
-          const paranoidConditions = buildParanoidConditions(tableAliases);
-          if (ast.where) {
-            ast.where = {
-              type: 'binary_expr',
-              operator: 'AND',
-              left: ast.where,
-              right: paranoidConditions,
-            };
-          } else {
-            ast.where = paranoidConditions;
-          }
-        }
+        updateAST(ast);
       });
     }
   }
 
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore - this is a bug in the node-sql-parser library
-  if (ast._next) {
+  if (ast?._next) {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore - this is a bug in the node-sql-parser library
     updateAST(ast._next as AST);
