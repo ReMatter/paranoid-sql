@@ -14,8 +14,7 @@
     "build": "tsc -p ./src/tsconfig.json"
   },
   "dependencies": {
-    "node-sql-parser": "^4.4.0",
-    "traverse": "^0.6.6"
+    "node-sql-parser": "^4.4.0"
   },
   "devDependencies": {
     "@types/assert": "^1.5.6",
