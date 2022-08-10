@@ -26,11 +26,7 @@ const buildParanoidConditions = (tableAliases: string[]) =>
 
 const getTableAliases = (from: From[]) => from.map(({ table, as }) => as ?? table);
 
-export const getParanoidSql = (sql: string): string => {
-  if (!parser) {
-    parser = new Parser();
-  }
-  const ast = parser.astify(sql) as AST;
+const updateAST = (ast: AST) => {
   if (ast.type === 'select') {
     const tableAliases = getTableAliases(ast.from as From[]);
     const paranoidConditions = buildParanoidConditions(tableAliases);
@@ -65,5 +61,20 @@ export const getParanoidSql = (sql: string): string => {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore - this is a bug in the node-sql-parser library
+  if (ast._next) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore - this is a bug in the node-sql-parser library
+    updateAST(ast._next as AST);
+  }
+};
+
+export const getParanoidSql = (sql: string): string => {
+  if (!parser) {
+    parser = new Parser();
+  }
+  const ast = parser.astify(sql) as AST;
+  updateAST(ast);
   return parser.sqlify(ast);
 };

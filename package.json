@@ -1,7 +1,7 @@
 {
   "name": "paranoid-sql",
   "version": "0.0.1",
-  "description": "Add condiition to verify rows are not soft deleted.",
+  "description": "Add condiitions to verify rows are not soft deleted.",
   "main": "./lib/index.mjs",
   "typings": "./lib/index.d.ts",
   "files": [
@@ -10,7 +10,9 @@
   "author": "ReMatter",
   "license": "MIT",
   "scripts": {
-    "test": "ts-node ./test/getParanoidSql.test.ts",
+    "pretest": "tsc test/getParanoidSql.test.ts",
+    "test": "node--test-only ./test/getParanoidSql.test.js || :",
+    "posttest": "rm -rf test/*.js src/*.js",
     "build": "tsc -p ./src/tsconfig.json"
   },
   "dependencies": {

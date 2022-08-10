@@ -41,6 +41,16 @@ test('query with join', () => {
   );
 });
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore - only option is missing in type definition and does not work
+// https://github.com/nodejs/node-core-test/issues/39
+test('queries with union', { only: true }, () => {
+  strictEqual(
+    getParanoidSql('SELECT t.name FROM t UNION SELECT u.name FROM u'),
+    'SELECT `t`.`name` FROM `t` WHERE `t`.`deletedAt` IS NULL UNION SELECT `u`.`name` FROM `u` WHERE `u`.`deletedAt` IS NULL',
+  );
+});
+
 // node-sql-parser does not support CTE yet
 // https://github.com/taozhi8833998/node-sql-parser/issues/1090
 test('query with cte', { skip: true }, () => {
