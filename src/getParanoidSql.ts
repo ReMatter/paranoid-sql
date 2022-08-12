@@ -26,7 +26,7 @@ const buildParanoidConditions = (tableAliases: string[]) =>
 
 const getTableAliases = (from: From[]) => from.map(({ table, as }) => as ?? table);
 
-const updateAST = (ast: AST) => {
+const updateAST = (ast: AST | null) => {
   if (ast?.type === 'select') {
     if (Array.isArray(ast.with)) {
       ast.with.forEach(({ stmt }) => {
@@ -34,24 +34,27 @@ const updateAST = (ast: AST) => {
         updateAST(ast);
       });
     } else {
-      const tableAliases = getTableAliases(ast.from as From[]);
-      const paranoidConditions = buildParanoidConditions(tableAliases);
-      if (ast.where) {
-        ast.where = {
-          type: 'binary_expr',
-          operator: 'AND',
-          left: ast.where,
-          right: paranoidConditions,
-        };
-      } else {
-        ast.where = paranoidConditions;
+      if (ast.from) {
+        const tableAliases = getTableAliases(ast.from as From[]);
+        const paranoidConditions = buildParanoidConditions(tableAliases);
+        if (ast.where) {
+          ast.where = {
+            type: 'binary_expr',
+            operator: 'AND',
+            left: ast.where,
+            right: paranoidConditions,
+          };
+        } else {
+          ast.where = paranoidConditions;
+        }
       }
     }
 
     if (Array.isArray(ast.columns)) {
       ast.columns.forEach(({ expr }) => {
-        const ast: AST = expr.ast;
-        updateAST(ast);
+        updateAST(expr.ast);
+        updateAST(expr.left?.ast);
+        updateAST(expr.right?.ast);
         if (expr.type === 'function') {
           expr.args.value.forEach(({ ast }: { ast: AST }) => updateAST(ast));
         }

@@ -63,3 +63,17 @@ test('query with cte', () => {
     'WITH cte AS (SELECT `id`, ROW_NUMBER() OVER (PARTITION BY `id`, `uid` ORDER BY `time` DESC) AS `ranking` FROM `t` WHERE `t`.`deletedAt` IS NULL) SELECT `id` FROM `cte` WHERE `ranking` = 1',
   );
 });
+
+test('select of query', () => {
+  strictEqual(
+    getParanoidSql('SELECT (SELECT count(*) FROM t)'),
+    'SELECT (SELECT COUNT(*) FROM `t` WHERE `t`.`deletedAt` IS NULL)',
+  );
+});
+
+test('arithmetic between queries', () => {
+  strictEqual(
+    getParanoidSql('SELECT ((SELECT count(*) FROM t) / (SELECT count(*) FROM u))'),
+    'SELECT ((SELECT COUNT(*) FROM `t` WHERE `t`.`deletedAt` IS NULL) / (SELECT COUNT(*) FROM `u` WHERE `u`.`deletedAt` IS NULL))',
+  );
+});
