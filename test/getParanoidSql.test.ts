@@ -84,3 +84,12 @@ test('select case when exists', () => {
     'SELECT CASE WHEN EXISTS(SELECT 1 FROM `t` WHERE `t`.`deletedAt` IS NULL) THEN 1 ELSE 0 END',
   );
 });
+
+test('select case when exists with query in the end', () => {
+  strictEqual(
+    getParanoidSql(
+      'SELECT CASE WHEN EXISTS (SELECT 1 FROM t) THEN 1 ELSE (SELECT count(*) from u) END',
+    ),
+    'SELECT CASE WHEN EXISTS(SELECT 1 FROM `t` WHERE `t`.`deletedAt` IS NULL) THEN 1 ELSE (SELECT COUNT(*) FROM `u` WHERE `u`.`deletedAt` IS NULL) END',
+  );
+});

@@ -69,6 +69,14 @@ const updateNode = (node: AST | null) => {
   }
 
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore - no else type yet
+  if (node?.type === 'else') {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore - no else type yet
+    updateNode(node.result?.ast);
+  }
+
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore - no when type yet
   if (node?.type === 'when') {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
