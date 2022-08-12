@@ -6,6 +6,20 @@ test('query with no where', () => {
   strictEqual(getParanoidSql('SELECT * FROM t'), 'SELECT * FROM `t` WHERE `t`.`deletedAt` IS NULL');
 });
 
+test('query with ? as replacement', () => {
+  strictEqual(
+    getParanoidSql('SELECT * FROM t WHERE status = ?'),
+    'SELECT * FROM `t` WHERE `status` = ? AND `t`.`deletedAt` IS NULL',
+  );
+});
+
+test('query with :var as replacement', () => {
+  strictEqual(
+    getParanoidSql('SELECT * FROM t WHERE status = :status'),
+    'SELECT * FROM `t` WHERE `status` = :status AND `t`.`deletedAt` IS NULL',
+  );
+});
+
 test('query with no where and alias', () => {
   strictEqual(
     getParanoidSql('SELECT * FROM t t1'),
