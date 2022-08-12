@@ -26,48 +26,70 @@ const buildParanoidConditions = (tableAliases: string[]) =>
 
 const getTableAliases = (from: From[]) => from.map(({ table, as }) => as ?? table);
 
-const updateAST = (ast: AST | null) => {
-  if (ast?.type === 'select') {
-    if (Array.isArray(ast.with)) {
-      ast.with.forEach(({ stmt }) => {
+const updateNode = (node: AST | null) => {
+  if (node?.type === 'select') {
+    if (Array.isArray(node.with)) {
+      node.with.forEach(({ stmt }) => {
         const ast: AST = stmt.ast;
-        updateAST(ast);
+        updateNode(ast);
       });
     } else {
-      if (ast.from) {
-        const tableAliases = getTableAliases(ast.from as From[]);
+      if (node.from) {
+        const tableAliases = getTableAliases(node.from as From[]);
         const paranoidConditions = buildParanoidConditions(tableAliases);
-        if (ast.where) {
-          ast.where = {
+        if (node.where) {
+          node.where = {
             type: 'binary_expr',
             operator: 'AND',
-            left: ast.where,
+            left: node.where,
             right: paranoidConditions,
           };
         } else {
-          ast.where = paranoidConditions;
+          node.where = paranoidConditions;
         }
       }
     }
 
-    if (Array.isArray(ast.columns)) {
-      ast.columns.forEach(({ expr }) => {
-        updateAST(expr.ast);
-        updateAST(expr.left?.ast);
-        updateAST(expr.right?.ast);
-        if (expr.type === 'function') {
-          expr.args.value.forEach(({ ast }: { ast: AST }) => updateAST(ast));
-        }
+    if (Array.isArray(node.columns)) {
+      node.columns.forEach(({ expr }) => {
+        updateNode(expr.ast);
+        updateNode(expr.left?.ast);
+        updateNode(expr.right?.ast);
+        updateNode(expr);
       });
     }
   }
 
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore - no function type yet
+  if (node?.type === 'function') {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore - no function type yet
+    node.args.value.forEach(({ ast }: { ast: AST }) => updateNode(ast));
+  }
+
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore - no when type yet
+  if (node?.type === 'when') {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore - no when type yet
+    updateNode(node.cond);
+  }
+
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore - no case type yet
+  if (node?.type === 'case') {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore - no case type yet
+    node.args.forEach((node) => updateNode(node));
+  }
+
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore - this is a bug in the node-sql-parser library
-  if (ast?._next) {
+  if (node?._next) {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore - this is a bug in the node-sql-parser library
-    updateAST(ast._next as AST);
+    updateNode(node._next as AST);
   }
 };
 
@@ -76,6 +98,6 @@ export const getParanoidSql = (sql: string): string => {
     parser = new Parser();
   }
   const ast = parser.astify(sql) as AST;
-  updateAST(ast);
+  updateNode(ast);
   return parser.sqlify(ast);
 };

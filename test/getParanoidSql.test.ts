@@ -77,3 +77,10 @@ test('arithmetic between queries', () => {
     'SELECT ((SELECT COUNT(*) FROM `t` WHERE `t`.`deletedAt` IS NULL) / (SELECT COUNT(*) FROM `u` WHERE `u`.`deletedAt` IS NULL))',
   );
 });
+
+test('select case when exists', () => {
+  strictEqual(
+    getParanoidSql('SELECT CASE WHEN EXISTS (SELECT 1 FROM t) THEN 1 ELSE 0 END'),
+    'SELECT CASE WHEN EXISTS(SELECT 1 FROM `t` WHERE `t`.`deletedAt` IS NULL) THEN 1 ELSE 0 END',
+  );
+});

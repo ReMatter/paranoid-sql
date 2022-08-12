@@ -10,9 +10,7 @@
   "author": "ReMatter",
   "license": "MIT",
   "scripts": {
-    "pretest": "tsc test/getParanoidSql.test.ts",
-    "test": "node--test-only ./test/getParanoidSql.test.js || :",
-    "posttest": "rm -rf test/*.js src/*.js",
+    "test": "ts-node ./test/getParanoidSql.test.ts",
     "build": "tsc -p ./src/tsconfig.json"
   },
   "dependencies": {
