@@ -79,6 +79,14 @@ const updateNode = (node: AST | null) => {
   }
 
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore - no unary_expr type yet
+  if (node?.type === 'unary_expr') {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore - no unary_expr type yet
+    updateNode(node.expr.ast);
+  }
+
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore - no else type yet
   if (node?.type === 'else') {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
