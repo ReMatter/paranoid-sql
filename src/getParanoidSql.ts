@@ -35,17 +35,27 @@ const updateNode = (node: AST | null) => {
       });
     } else {
       if (node.from) {
-        const tableAliases = getTableAliases(node.from as From[]);
-        const paranoidConditions = buildParanoidConditions(tableAliases);
-        if (node.where) {
-          node.where = {
-            type: 'binary_expr',
-            operator: 'AND',
-            left: node.where,
-            right: paranoidConditions,
-          };
-        } else {
-          node.where = paranoidConditions;
+        // derived tables
+        node.from
+          .filter(({ expr }) => !!expr)
+          .forEach(({ expr }) => {
+            updateNode(expr.ast);
+          });
+
+        const simpleTables = node.from.filter(({ expr }) => !expr);
+        if (simpleTables.length > 0) {
+          const tableAliases = getTableAliases(simpleTables);
+          const paranoidConditions = buildParanoidConditions(tableAliases);
+          if (node.where) {
+            node.where = {
+              type: 'binary_expr',
+              operator: 'AND',
+              left: node.where,
+              right: paranoidConditions,
+            };
+          } else {
+            node.where = paranoidConditions;
+          }
         }
       }
     }
