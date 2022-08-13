@@ -69,6 +69,15 @@ test('queries with union', () => {
   );
 });
 
+test('queries with union sum', () => {
+  strictEqual(
+    getParanoidSql(
+      'SELECT SUM(v.qty) FROM (SELECT t.qty FROM t UNION ALL SELECT u.qty FROM u) AS v',
+    ),
+    'SELECT SUM(`v`.`qty`) FROM (SELECT `t`.`qty` FROM `t` WHERE `t`.`deletedAt` IS NULL UNION ALL SELECT `u`.`qty` FROM `u` WHERE `u`.`deletedAt` IS NULL) AS `v`',
+  );
+});
+
 test('query with cte', () => {
   strictEqual(
     getParanoidSql(
@@ -89,6 +98,15 @@ test('arithmetic between queries', () => {
   strictEqual(
     getParanoidSql('SELECT ((SELECT count(*) FROM t) / (SELECT count(*) FROM u))'),
     'SELECT ((SELECT COUNT(*) FROM `t` WHERE `t`.`deletedAt` IS NULL) / (SELECT COUNT(*) FROM `u` WHERE `u`.`deletedAt` IS NULL))',
+  );
+});
+
+test('select case', () => {
+  strictEqual(
+    getParanoidSql(
+      `SELECT u.name, (SELECT CASE t.type WHEN 'a' THEN 1 WHEN 'b' THEN 2 ELSE 0 END FROM (SELECT u.type) AS t) AS code FROM u`,
+    ),
+    "SELECT `u`.`name`, (SELECT CASE `t`.`type` WHEN 'a' THEN 1 WHEN 'b' THEN 2 ELSE 0 END FROM (SELECT `u`.`type`) AS `t`) AS `code` FROM `u` WHERE `u`.`deletedAt` IS NULL",
   );
 });
 
